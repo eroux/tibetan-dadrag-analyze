@@ -72,12 +72,22 @@ with open ("tibetan-collation/rules.txt", "r") as rulesfile:
     RULES=rulesfile.read()
 COLLATOR = RuleBasedCollator('[normalization on]\n'+RULES)
 
+def get_forms_str(syl_stats):
+    res = ''
+    for formtype in ["expl_c_sandhi", "expl_w_sandhi", "sandhi", "w_sandhi"]:
+        for form in syl_stats[formtype]:
+            if form == 'total':
+                continue
+            ids = syl_stats[formtype][form]
+            res += form+' ('+str(len(ids))+'), '
+    return res
+
 def print_stats_csv(stats):
     sortedkeys = sorted(stats["da_drag"].keys(), key=COLLATOR.getSortKey)
     print('syllable,explicit da drag with correct sandhi,explicit da drag with incorrect sandhi,explicit da drag with no sandhi,no explicit da drag with da drag sandhi,no explicit da drag with non-dadrag sandhi,no explicit da drag with no sandhi')
     for syl in sortedkeys:
         syl_stats = stats["da_drag"][syl]
-        if syl_stats["expl_c_sandhi"]["total"] + syl_stats["expl_w_sandhi"]["total"] + syl_stats["expl_no_sandhi"]["total"] + syl_stats["sandhi"]["total"] + syl_stats["w_sandhi"]["total"] == 0 :
+        if syl_stats["expl_c_sandhi"]["total"] + syl_stats["expl_w_sandhi"]["total"] + syl_stats["expl_no_sandhi"]["total"] + syl_stats["sandhi"]["total"] ==   0 :
             continue
         print(syl+','+
             str(syl_stats["expl_c_sandhi"]["total"])+','+
@@ -85,9 +95,9 @@ def print_stats_csv(stats):
             str(syl_stats["expl_no_sandhi"]["total"])+','+
             str(syl_stats["sandhi"]["total"])+','+
             str(syl_stats["w_sandhi"]["total"])+','+
-            str(syl_stats["no_sandhi"]["total"]))
+            str(syl_stats["no_sandhi"]["total"])+',"'+get_forms_str(syl_stats)+'"')
 
-with open('corpus.txt', 'r') as f:
+with open('corpus2.txt', 'r') as f:
     stats = {"da_drag": {}, "ids": {}}
     for line in f.readlines():
         id = line.split(' - ')[0]
