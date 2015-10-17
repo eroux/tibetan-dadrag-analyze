@@ -50,6 +50,12 @@ def analyze_dd(stats, line, id):
         second = m.group('second')
         if second == '་': # not sure why this happens sometimes
             second = None
+        elif second and second.startswith('་བོ'):
+            second = '་བོ'
+        elif second and second.startswith('་བ'):
+            second = '་བ'
+        elif second and second.startswith('་པ'):
+            second = '་པ'
         if m.group('dd'):
             if syl in NOT_DA_DRAG:
                 continue
