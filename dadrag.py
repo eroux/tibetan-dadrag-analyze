@@ -42,6 +42,7 @@ def add_occurence(stats, syl, type, second_part, id):
         substats[complete_form] = []
     substats[complete_form].append(id)
 
+NOT_DA_DRAG = ["གན", "མན"]
 def analyze_dd(stats, line, id):
     for m in re.finditer(dd_reg, line):
         #print(m.groups())
@@ -50,6 +51,8 @@ def analyze_dd(stats, line, id):
         if second == '་': # not sure why this happens sometimes
             second = None
         if m.group('dd'):
+            if syl in NOT_DA_DRAG:
+                continue
             if second:
                 if m.group('dds'):
                     add_occurence(stats, syl, "expl_c_sandhi", 'ད'+second, id)
