@@ -1,0 +1,3 @@
+[submodule "tibetan-collation"]
+	path = tibetan-collation
+	url = https://github.com/eroux/tibetan-collation.git

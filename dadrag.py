@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+from icu import RuleBasedCollator
 
 # global result, object with the following structure:
 #    - da_drag
@@ -22,10 +23,7 @@ import re
 #       - for other values, an array containing a tuple with first the occurence,
 #            the id of the occurence
 
-#dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>[ལར(?P<n>ན)]))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|པོ?(?:འི|འོ|ར|ས|འམ|འང)?)|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|བོ?(?:འི|ར|ས|འོ|འམ|འང)?))?(?:[^\u0F40-\u0FBC]|$)')
-
 dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པོ?(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བོ?(?:འི|ར|ས|འོ|འམ|འང)?)))?(?:[^\u0F40-\u0FBC]|$)')
-#dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ)|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བོ?(?:འི|ར|ས|འོ|འམ|འང)?)))?(?:[^\u0F40-\u0FBC]|$)')
 
 def add_occurence(stats, syl, type, second_part, id):
     if not syl in stats["da_drag"]:
@@ -68,9 +66,17 @@ def analyze_dd(stats, line, id):
             else:
                 add_occurence(stats, syl, "no_sandhi", 'ད', id)
 
+# collation
+RULES=''
+with open ("tibetan-collation/rules.txt", "r") as rulesfile:
+    RULES=rulesfile.read()
+COLLATOR = RuleBasedCollator('[normalization on]\n'+RULES)
+
 def print_stats_csv(stats):
+    sortedkeys = sorted(stats["da_drag"].keys(), key=COLLATOR.getSortKey)
     print('syllable,explicit da drag with correct sandhi,explicit da drag with incorrect sandhi,explicit da drag with no sandhi,no explicit da drag with da drag sandhi,no explicit da drag with non-dadrag sandhi,no explicit da drag with no sandhi')
-    for syl, syl_stats in stats["da_drag"].items():
+    for syl in sortedkeys:
+        syl_stats = stats["da_drag"][syl]
         if syl_stats["expl_c_sandhi"]["total"] + syl_stats["expl_w_sandhi"]["total"] + syl_stats["expl_no_sandhi"]["total"] + syl_stats["sandhi"]["total"] + syl_stats["w_sandhi"]["total"] == 0 :
             continue
         print(syl+','+
