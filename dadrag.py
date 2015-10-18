@@ -23,7 +23,7 @@ from icu import RuleBasedCollator
 #       - for other values, an array containing a tuple with first the occurence,
 #            the id of the occurence
 
-dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པོ?(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བོ?(?:འི|ར|ས|འོ|འམ|འང)?)))?(?:[^\u0F40-\u0FBC]|$)')
+dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པ(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བ(?:འི|ར|ས|འོ|འམ|འང)?)))?(?:[^\u0F40-\u0FBC]|$)')
 
 def add_occurence(stats, syl, type, second_part, id):
     if not syl in stats["da_drag"]:
@@ -50,8 +50,6 @@ def analyze_dd(stats, line, id):
         second = m.group('second')
         if second == '་': # not sure why this happens sometimes
             second = None
-        elif second and second.startswith('་བོ'):
-            second = '་བོ'
         elif second and second.startswith('་བ'):
             second = '་བ'
         elif second and second.startswith('་པ'):
