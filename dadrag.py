@@ -23,9 +23,11 @@ from icu import RuleBasedCollator
 #       - for other values, an array containing a tuple with first the occurence,
 #            the id of the occurence
 
-dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པ(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བ(?:འི|ར|ས|འོ|འམ|འང)?)))?(?:[^\u0F40-\u0FBC]|$)')
+dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པ(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཤིག|ཤེས|ཤེ་ན|ཤེའོ|ཤིང|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བ(?:འི|ར|ས|འོ|འམ|འང)?)))?(?=[^\u0F40-\u0FBC]|\Z)')
+#dd_reg = re.compile('(?:(?:[^\u0F40-\u0FBC]+|\A)(?P<neg>མ་|མི་))?(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཅིག)|་(?P<ndds>ཞིག|ཤིག))?(?:[^\u0F40-\u0FBC]|$)')
+#dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏུ))?(?:[^\u0F40-\u0FBC]|$)')
 
-def add_occurence(stats, syl, type, second_part, id):
+def add_occurence(stats, syl, type, second_part, id, prefix):
     if not syl in stats["da_drag"]:
         stats["da_drag"][syl] = {
             "expl_no_sandhi": {"total": 0}, 
@@ -37,7 +39,7 @@ def add_occurence(stats, syl, type, second_part, id):
         }
     substats = stats["da_drag"][syl][type]
     substats["total"] = substats["total"] + 1
-    complete_form = syl + second_part
+    complete_form = prefix + syl + second_part
     if not complete_form in substats:
         substats[complete_form] = []
     substats[complete_form].append(id)
@@ -54,24 +56,28 @@ def analyze_dd(stats, line, id):
             second = '་བ'
         elif second and second.startswith('་པ'):
             second = '་པ'
+        prefix = ''
+        #prefix = m.group('neg')
+        #if not m.group('neg'):
+        #    prefix = ''
         if m.group('dd'):
             if syl in NOT_DA_DRAG:
                 continue
             if second:
                 if m.group('dds'):
-                    add_occurence(stats, syl, "expl_c_sandhi", 'ད'+second, id)
+                    add_occurence(stats, syl, "expl_c_sandhi", 'ད'+second, id, prefix)
                 else:
-                    add_occurence(stats, syl, "expl_w_sandhi", 'ད'+second, id)
+                    add_occurence(stats, syl, "expl_w_sandhi", 'ད'+second, id, prefix)
             else:
-                add_occurence(stats, syl, "expl_no_sandhi", 'ད', id)
+                add_occurence(stats, syl, "expl_no_sandhi", 'ད', id, prefix)
         else:
             if second:
                 if m.group('dds'):
-                    add_occurence(stats, syl, "sandhi", second, id)
+                    add_occurence(stats, syl, "sandhi", second, id, prefix)
                 else:
-                    add_occurence(stats, syl, "w_sandhi", second, id)
+                    add_occurence(stats, syl, "w_sandhi", second, id, prefix)
             else:
-                add_occurence(stats, syl, "no_sandhi", 'ད', id)
+                add_occurence(stats, syl, "no_sandhi", 'ད', id, prefix)
 
 # collation
 RULES=''
@@ -107,11 +113,11 @@ def print_stats_csv(stats):
 with open('corpus2.txt', 'r') as f:
     stats = {"da_drag": {}, "ids": {}}
     for line in f.readlines():
-        id = line.split(' - ')[0]
+        id = line.split(' -')[0]
         analyze_dd(stats, line, id)
     print_stats_csv(stats)
 
-#line=" test བནད པན པན་དུ པན་ཏུ པནད་ པནད། པནད་པ པནད་བ པནད་པོ པནད་པོའི པནད་ནོ པནད་ན པནད་ལོ པལད་ལོ པལད་བ"
+#line=" test བནད པན པན་དུ པན་ཏུ མི་ལེན་བ་ མི་ལེནད་བ་ པནད་ པནད། པནད་པ པནད་བ པནད་པོ པནད་པོའི པནད་ནོ པནད་ན པནད་ལོ པལད་ལོ པལད་བ"
 #stats = {"da_drag": {}, "ids": {}}
 #analyze_dd(stats, line, 1)
 #print_stats_csv(stats)
