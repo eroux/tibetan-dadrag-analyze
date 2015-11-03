@@ -23,7 +23,7 @@ from icu import RuleBasedCollator
 #       - for other values, an array containing a tuple with first the occurence,
 #            the id of the occurence
 
-dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པ(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཤིག|ཤེས|ཤེ་ན|ཤེའོ|ཤིང|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བ(?:འི|ར|ས|འོ|འམ|འང)?)))?(?=[^\u0F40-\u0FBC]|\Z)')
+dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏོ|ཅེ་ན|ཅིང|ཅིག|ཅེའོ|ཅེས|ཏམ|ཀྱང|ཏུ|(?(rorl)པ(?:འི|འོ|ར|ས|འམ|འང)?))|་(?P<ndds>(?P=final)\u0F7C|(?P=final)མ|ཤིག|ཤེ་ན|ཤེའོ|ཞེ་ན|ཞིང|ཞིག|ཞེའོ|ཞེས|ཡང|དུ|(?(rorl)བ(?:འི|ར|ས|འོ|འམ|འང)?)))?(?=[^\u0F40-\u0FBC]|\Z)')
 #dd_reg = re.compile('(?:(?:[^\u0F40-\u0FBC]+|\A)(?P<neg>མ་|མི་))?(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཅིག)|་(?P<ndds>ཞིག|ཤིག))?(?:[^\u0F40-\u0FBC]|$)')
 #dd_reg = re.compile('(?P<syl>[\u0F40-\u0FBC]+(?P<final>(?P<rorl>ལ|ར)|ན))(?P<dd>ད?)(?P<second>་(?P<dds>ཏུ))?(?:[^\u0F40-\u0FBC]|$)')
 
